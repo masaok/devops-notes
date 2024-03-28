@@ -1,106 +1,104 @@
-- [1. Update Your System](#1-update-your-system)
-- [2. Install Necessary Packages](#2-install-necessary-packages)
+- [1. Install DHCP Server](#1-install-dhcp-server)
+- [2. Configure Network Interfaces](#2-configure-network-interfaces)
 - [3. Enable IP Forwarding](#3-enable-ip-forwarding)
-- [4. Configure NAT](#4-configure-nat)
-- [5. Save Your IPTABLES Rules](#5-save-your-iptables-rules)
-- [6. Configure Network Interfaces](#6-configure-network-interfaces)
-- [7. DHCP Server (Optional)](#7-dhcp-server-optional)
-- [Final Steps](#final-steps)
+- [4. Set Up NAT](#4-set-up-nat)
+- [5. Configure DHCP Server](#5-configure-dhcp-server)
+- [6. Start DHCP Server](#6-start-dhcp-server)
+- [7. Verify Configuration](#7-verify-configuration)
 
-Setting up an Ubuntu machine to act as a router involves several steps, including enabling IP forwarding, setting up NAT (Network Address Translation), and configuring your network interfaces. Here's a basic guide to get you started. This guide assumes you have two network interfaces: `eth0` (connected to your WAN or internet source) and `eth1` (connected to your local network).
+To use an Ubuntu Linux machine with two Ethernet interfaces as a router and set up a local DHCP server, you'll need to follow a series of steps. This will involve configuring the network interfaces, enabling IP forwarding, setting up NAT (Network Address Translation), and configuring a DHCP server. Below are the general steps to accomplish this. Please note that you might need to adjust commands and configuration files based on your specific Ubuntu version and network setup.
 
-### 1. Update Your System
+### 1. Install DHCP Server
 
-First, make sure your system is up-to-date:
-
-```bash
-sudo apt-get update && sudo apt-get upgrade
-```
-
-### 2. Install Necessary Packages
-
-Install `iptables`, the tool you'll use to set up NAT and firewall rules:
+First, you need to install the DHCP server package. Open a terminal and run:
 
 ```bash
-sudo apt-get install iptables iptables-persistent
+sudo apt update
+sudo apt install isc-dhcp-server
 ```
 
-During the installation of `iptables-persistent`, it will ask if you want to save current rules. You can choose "Yes" or "No" since you haven't created any rules yet.
+### 2. Configure Network Interfaces
 
-### 3. Enable IP Forwarding
+Identify your network interfaces with `ip addr` or `ifconfig` (you might need to install `net-tools` for `ifconfig`). Usually, they are named something like `eth0`, `eth1`, `wlan0`, etc. Decide which one will be connected to your upstream internet (WAN) and which one will serve your local network (LAN).
 
-Edit the `sysctl.conf` file to enable IP forwarding:
-
-```bash
-sudo nano /etc/sysctl.conf
-```
-
-Find the line `#net.ipv4.ip_forward=1` and remove the `#` to uncomment it. Save and close the file. Apply the changes by running:
-
-```bash
-sudo sysctl -p
-```
-
-### 4. Configure NAT
-
-Use `iptables` to configure NAT. This step allows devices on your local network to share your Ubuntu machine's internet connection.
-
-```bash
-sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-sudo iptables -A FORWARD -i eth0 -o eth1 -m state --state RELATED,ESTABLISHED -j ACCEPT
-sudo iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
-```
-
-### 5. Save Your IPTABLES Rules
-
-Save the `iptables` rules so they persist after reboot:
-
-```bash
-sudo netfilter-persistent save
-```
-
-### 6. Configure Network Interfaces
-
-You need to configure your network interfaces. This can involve setting a static IP for your `eth1` interface and ensuring `eth0` is configured correctly for your WAN connection. This setup can vary based on whether you're using a static IP, DHCP, or another method for your WAN connection.
-
-For a static IP on `eth1`, edit the Netplan configuration or the `/etc/network/interfaces` file, depending on your Ubuntu version and configuration.
-
-Example for Netplan (`/etc/netplan/01-netcfg.yaml`):
+Edit `/etc/netplan/01-netcfg.yaml` or the appropriate netplan configuration file for your system, to configure your interfaces. For example:
 
 ```yaml
 network:
   version: 2
   renderer: networkd
   ethernets:
+    eth0:
+      dhcp4: no
+      addresses: [192.168.1.1/24]
     eth1:
-      addresses:
-        - 192.168.1.1/24
-      gateway4: 192.168.1.1
-      nameservers:
-        addresses: [8.8.8.8, 8.8.4.4]
+      dhcp4: true
 ```
 
-Apply the changes with:
+Here, `eth0` is set with a static IP and will be used for the LAN side, while `eth1` gets its IP via DHCP from your ISP.
+
+After making changes, apply them with `sudo netplan apply`.
+
+### 3. Enable IP Forwarding
+
+Edit `/etc/sysctl.conf` and uncomment or add the following line:
+
+```conf
+net.ipv4.ip_forward=1
+```
+
+Apply the changes with `sudo sysctl -p`.
+
+### 4. Set Up NAT
+
+Use `iptables` to set up NAT. This example assumes `eth1` is your WAN interface:
 
 ```bash
-sudo netplan apply
+sudo iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+sudo apt install iptables-persistent
 ```
 
-### 7. DHCP Server (Optional)
+The `iptables-persistent` package will help keep your NAT configuration across reboots.
 
-If you want your Ubuntu router to assign IP addresses to your local network devices, you'll need to set up a DHCP server. Install `isc-dhcp-server` and configure it to serve your local network.
+### 5. Configure DHCP Server
 
-Install the DHCP server:
+Edit `/etc/dhcp/dhcpd.conf` to configure your DHCP server. Add the following configuration for your LAN network (adjust according to your network settings):
+
+```conf
+subnet 192.168.1.0 netmask 255.255.255.0 {
+  range 192.168.1.10 192.168.1.100;
+  option domain-name-servers 8.8.8.8, 8.8.4.4;
+  option routers 192.168.1.1;
+  option broadcast-address 192.168.1.255;
+  default-lease-time 600;
+  max-lease-time 7200;
+}
+```
+
+Replace `192.168.1.1` with your LAN interface's IP address, and adjust the `range` to fit your needs.
+
+### 6. Start DHCP Server
+
+Specify the interface on which the DHCP server should listen by editing `/etc/default/isc-dhcp-server` and setting the `INTERFACESv4` variable to your LAN interface, for example:
 
 ```bash
-sudo apt-get install isc-dhcp-server
+INTERFACESv4="eth0"
 ```
 
-Configure it by editing `/etc/dhcp/dhcpd.conf` to define your subnet and range of IP addresses that can be assigned.
+Restart the DHCP server to apply changes:
 
-### Final Steps
+```bash
+sudo systemctl restart isc-dhcp-server
+```
 
-- Restart networking services or reboot your Ubuntu machine to apply all changes.
-- Test your configuration from a client device by attempting to access the internet through your new Ubuntu router.
+### 7. Verify Configuration
 
-Remember, this is a basic setup. Depending on your specific requirements (e.g., setting up firewall rules, more complex networking scenarios), you may need to perform additional configurations.
+Ensure the DHCP server is running correctly with:
+
+```bash
+sudo systemctl status isc-dhcp-server
+```
+
+Check your IP forwarding and NAT setup by connecting a device to your LAN and verifying it receives an IP address and can access the internet.
+
+This setup turns your Ubuntu machine into a basic router with DHCP capabilities. Depending on your requirements, you might want to explore additional configurations, such as setting up firewall rules, DHCP reservations, or more complex networking scenarios.
