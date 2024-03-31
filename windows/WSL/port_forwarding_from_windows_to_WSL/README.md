@@ -1,5 +1,16 @@
+- [Problem](#problem)
 - [Solution](#solution)
 - [ChatGPT](#chatgpt)
+
+### Problem
+
+How to access a NextJS dev instance running on WSL from a mobile web browser on the same network.
+
+Prompt:
+
+```
+windows forward all port 3000 traffic to wsl
+```
 
 ### Solution
 
