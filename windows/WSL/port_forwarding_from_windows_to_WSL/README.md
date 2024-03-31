@@ -1,5 +1,5 @@
 - [Problem](#problem)
-- [Solution](#solution)
+- [Solution (does not work yet)](#solution-does-not-work-yet)
 - [ChatGPT](#chatgpt)
 
 ### Problem
@@ -12,7 +12,7 @@ Prompt:
 windows forward all port 3000 traffic to wsl
 ```
 
-### Solution
+### Solution (does not work yet)
 
 Admin Powershell:
 
