@@ -15,6 +15,12 @@ Check:
 netsh interface portproxy show all
 ```
 
+Delete the interface:
+
+```
+netsh interface portproxy delete v4tov4 listenport=3000 0.0.0.0
+```
+
 Allow through Windows Defender firewall?
 
 ```
