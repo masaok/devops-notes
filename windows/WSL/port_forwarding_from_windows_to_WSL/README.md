@@ -21,6 +21,12 @@ Allow through Windows Defender firewall?
 New-NetFirewallRule -DisplayName "Allow Port 3000" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
 ```
 
+Allow ping (from mobile phone to desktop):
+
+```
+netsh advfirewall firewall add rule name="Allow Ping" protocol=icmpv4:8,any dir=in action=allow
+```
+
 ### ChatGPT
 
 To forward all traffic from a specific port (e.g., port 3000) on Windows to the Windows Subsystem for Linux (WSL), you can use the `netsh` command on Windows. This is particularly useful when you're running a server in WSL that you want to access from Windows or other devices in your network. Here’s how you can do it:
