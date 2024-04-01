@@ -17,7 +17,7 @@ windows forward all port 3000 traffic to wsl
 Admin Powershell:
 
 ```
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=<WSL_IP_Address>
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=localhost
 ```
 
 Check:
