@@ -1,5 +1,5 @@
 - [Problem](#problem)
-- [Solution (does not work yet)](#solution-does-not-work-yet)
+- [Solution (works 4/1/2024)](#solution-works-412024)
 - [ChatGPT](#chatgpt)
 
 ### Problem
@@ -12,15 +12,21 @@ Prompt:
 windows forward all port 3000 traffic to wsl
 ```
 
-### Solution (does not work yet)
+### Solution (works 4/1/2024)
+
+In WSL, get the IP of WSL:
+
+```
+ifconfig
+```
 
 Admin Powershell:
 
 ```
-netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=localhost
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=<WSL_IP_HERE>
 ```
 
-https://stackoverflow.com/a/66485783
+https://stackoverflow.com/a/66485783 (helpful, but `localhost` does not work)
 
 Check:
 
