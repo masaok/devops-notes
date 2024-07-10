@@ -55,8 +55,13 @@ if (-not (Get-Service ssh-agent).Status -eq 'Running') {
 $sshKeys = @(
   "$env:USERPROFILE\.ssh\id_rsa",
   "$env:USERPROFILE\.ssh\id_ed25519",
-  "$env:USERPROFILE\OneDrive\whatever\*.pem",
 )
+
+# Add blah*.pem files from OneDrive to the list of SSH keys
+$moreKeys = Get-ChildItem "$env:USERPROFILE\OneDrive\keys\blah*.pem" | Select-Object -ExpandProperty FullName
+
+# Combine the lists
+$sshKeys += $moreKeys
 
 foreach ($key in $sshKeys) {
     if (Test-Path $key) {
