@@ -52,7 +52,11 @@ if (-not (Get-Service ssh-agent).Status -eq 'Running') {
 }
 
 # Add SSH keys to the agent
-$sshKeys = @("$env:USERPROFILE\.ssh\id_rsa", "$env:USERPROFILE\.ssh\id_ed25519")
+$sshKeys = @(
+  "$env:USERPROFILE\.ssh\id_rsa",
+  "$env:USERPROFILE\.ssh\id_ed25519",
+  "$env:USERPROFILE\OneDrive\whatever\*.pem",
+)
 
 foreach ($key in $sshKeys) {
     if (Test-Path $key) {
