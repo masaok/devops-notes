@@ -6,7 +6,11 @@
 - [6. **Save and close the profile script**:](#6-save-and-close-the-profile-script)
 - [7. **Restart PowerShell**:](#7-restart-powershell)
 
-To automatically start `ssh-agent` and load your SSH keys in PowerShell, you can set up a profile script that runs every time you start a new PowerShell session. Here's a step-by-step guide to do this:
+## This still does not work.  Use Git Bash instead.
+
+To automatically start `ssh-agent` and load your SSH keys in PowerShell, you can set up a profile script that runs every time you start a new PowerShell session. 
+
+Here's a step-by-step guide to do this:
 
 ### 1. **Open PowerShell as Administrator**:
 
