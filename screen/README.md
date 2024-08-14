@@ -5,7 +5,6 @@
 - [Reattached an attached session after SSH crash](#reattached-an-attached-session-after-ssh-crash)
 - [Show the current session name](#show-the-current-session-name)
 - [References](#references)
-  - [Basics](#basics)
 
 ### Screen: start a new screen session
 
@@ -54,8 +53,6 @@ CTRL-a, p: prev screen
 https://stackoverflow.com/a/10025891/1302174
 
 ### References
-
-#### Basics
 
 https://uisapp2.iu.edu/confluence-prd/pages/viewpage.action?pageId=115540034
 
